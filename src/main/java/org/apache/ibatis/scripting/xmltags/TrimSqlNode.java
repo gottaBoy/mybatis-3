@@ -51,8 +51,11 @@ public class TrimSqlNode implements SqlNode {
 
   @Override
   public boolean apply(DynamicContext context) {
+    // 创建具有过滤功能的 DynamicContext
     FilteredDynamicContext filteredDynamicContext = new FilteredDynamicContext(context);
+    // 解析节点内容
     boolean result = contents.apply(filteredDynamicContext);
+    // 过滤掉前缀和后缀
     filteredDynamicContext.applyAll();
     return result;
   }
@@ -87,9 +90,11 @@ public class TrimSqlNode implements SqlNode {
       sqlBuffer = new StringBuilder(sqlBuffer.toString().trim());
       String trimmedUppercaseSql = sqlBuffer.toString().toUpperCase(Locale.ENGLISH);
       if (trimmedUppercaseSql.length() > 0) {
+        // 引用前缀和后缀，也就是对 sql 进行过滤操作，移除掉前缀或后缀
         applyPrefix(sqlBuffer, trimmedUppercaseSql);
         applySuffix(sqlBuffer, trimmedUppercaseSql);
       }
+      // 将当前对象的 sqlBuffer 内容添加到代理类中
       delegate.appendSql(sqlBuffer.toString());
     }
 
@@ -119,16 +124,20 @@ public class TrimSqlNode implements SqlNode {
     }
 
     private void applyPrefix(StringBuilder sql, String trimmedUppercaseSql) {
+      // 设置 prefixApplied 为 true，以下逻辑仅会被执行一次
       if (!prefixApplied) {
         prefixApplied = true;
         if (prefixesToOverride != null) {
           for (String toRemove : prefixesToOverride) {
+            // 检测当前 sql 字符串是否包含 toRemove 前缀，比如 'AND ', 'AND\t'
             if (trimmedUppercaseSql.startsWith(toRemove)) {
+              // 移除前缀
               sql.delete(0, toRemove.trim().length());
               break;
             }
           }
         }
+        // 插入前缀，比如 WHERE
         if (prefix != null) {
           sql.insert(0, " ");
           sql.insert(0, prefix);
@@ -136,6 +145,7 @@ public class TrimSqlNode implements SqlNode {
       }
     }
 
+    // 该方法逻辑与 applyPrefix 大同小异，大家自行分析
     private void applySuffix(StringBuilder sql, String trimmedUppercaseSql) {
       if (!suffixApplied) {
         suffixApplied = true;

@@ -482,6 +482,9 @@ class SqlSessionTest extends BaseDataTest {
     assertTrue(first != second);
   }
 
+  /**
+   * 先调用 SqlSession 接口的 getMapper 方法为我们的 Mapper 接口生成实现类。然后就可以通过 Mapper 进行数据库操作
+   */
   @Test
   void shouldSelectAuthorsUsingMapperClass() {
     try (SqlSession session = sqlMapper.openSession()) {

@@ -58,13 +58,25 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
     processBatch(ms, stmt, parameter);
   }
 
+  /**
+   * 获取主键数组(keyProperties)
+   * 获取 ResultSet 元数据
+   * 遍历参数列表，为每个主键属性获取 TypeHandler
+   * 从 ResultSet 中获取主键数据，并填充到参数中
+   * @param ms
+   * @param stmt
+   * @param parameter
+   */
   public void processBatch(MappedStatement ms, Statement stmt, Object parameter) {
+    // 获取主键字段
     final String[] keyProperties = ms.getKeyProperties();
     if (keyProperties == null || keyProperties.length == 0) {
       return;
     }
     try (ResultSet rs = stmt.getGeneratedKeys()) {
       final Configuration configuration = ms.getConfiguration();
+      // 获取结果集 ResultSet 的元数据
+      // ResultSet 中数据的列数要大于等于主键的数量
       if (rs.getMetaData().getColumnCount() >= keyProperties.length) {
         Object soleParam = getSoleParameter(parameter);
         if (soleParam != null) {
@@ -121,6 +133,11 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
     final ResultSetMetaData rsmd = rs.getMetaData();
     // Wrap the parameter in Collection to normalize the logic.
     Collection<?> paramAsCollection;
+    /*
+     * 如果 parameter 是 Map 类型，则从其中提取指定 key 对应的值。
+     * 至于 Map 中为什么会出现 collection/list/array 等键。大家
+     * 可以参考 DefaultSqlSession 的 wrapCollection 方法
+     */
     if (param instanceof Object[]) {
       paramAsCollection = Arrays.asList((Object[]) param);
     } else if (!(param instanceof Collection)) {
@@ -129,14 +146,17 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
       paramAsCollection = (Collection<?>) param;
     }
     TypeHandler<?>[] typeHandlers = null;
+    // 遍历 parameters
     for (Object obj : paramAsCollection) {
       if (!rs.next()) {
         break;
       }
       MetaObject metaParam = configuration.newMetaObject(obj);
       if (typeHandlers == null) {
+        // 为每个主键属性获取 TypeHandler
         typeHandlers = getTypeHandlers(typeHandlerRegistry, metaParam, keyProperties, rsmd);
       }
+      // 填充结果到运行时参数中
       populateKeys(rs, metaParam, keyProperties, typeHandlers);
     }
   }
@@ -172,11 +192,15 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
   }
 
   private void populateKeys(ResultSet rs, MetaObject metaParam, String[] keyProperties, TypeHandler<?>[] typeHandlers) throws SQLException {
+    // 遍历 keyProperties
     for (int i = 0; i < keyProperties.length; i++) {
+      // 获取主键属性
       String property = keyProperties[i];
       TypeHandler<?> th = typeHandlers[i];
       if (th != null) {
+        // 从 ResultSet 中获取某列的值
         Object value = th.getResult(rs, i + 1);
+        // 设置结果值到运行时参数中
         metaParam.setValue(property, value);
       }
     }
