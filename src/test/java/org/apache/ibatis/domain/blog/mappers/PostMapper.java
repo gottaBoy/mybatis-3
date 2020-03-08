@@ -15,17 +15,15 @@
  */
 package org.apache.ibatis.domain.blog.mappers;
 
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.domain.blog.Post;
 import org.apache.ibatis.session.RowBounds;
 
 import java.util.List;
 import java.util.Map;
 
-public interface BlogMapper {
+public interface PostMapper {
 
-  List<Map> selectAllPosts();
-
-  List<Map> selectAllPosts(RowBounds rowBounds);
-
-  List<Map> selectAllPosts(RowBounds rowBounds, Object param);
+  Post findPost(@Param("id") Integer id, @Param("ids") Integer ids, @Param("author_id") Integer authorId);
 
 }

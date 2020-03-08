@@ -15,12 +15,16 @@
  */
 package org.apache.ibatis.mapping;
 
+import org.apache.ibatis.builder.xml.XMLMapperBuilder;
+import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.Configuration;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.io.InputStream;
 
 @ExtendWith(MockitoExtension.class)
 class ResultMappingTest {
@@ -45,5 +49,6 @@ class ResultMappingTest {
         .nestedQueryId("nested query ID")
         .build());
   }
+
 
 }
