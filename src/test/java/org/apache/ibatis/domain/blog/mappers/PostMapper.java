@@ -13,24 +13,19 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.apache.ibatis.builder;
+package org.apache.ibatis.domain.blog.mappers;
 
-import org.apache.ibatis.cache.Cache;
+import org.apache.ibatis.session.RowBounds;
 
-/**
- * @author Clinton Begin
- */
-public class CacheRefResolver {
-  private final MapperBuilderAssistant assistant;
-  private final String cacheRefNamespace;
+import java.util.List;
+import java.util.Map;
 
-  public CacheRefResolver(MapperBuilderAssistant assistant, String cacheRefNamespace) {
-    this.assistant = assistant;
-    this.cacheRefNamespace = cacheRefNamespace;
-  }
+public interface BlogMapper {
 
-  public Cache resolveCacheRef() {
-    // 调用 builderAssistant 的 useNewCache(namespace) 方法
-    return assistant.useCacheRef(cacheRefNamespace);
-  }
+  List<Map> selectAllPosts();
+
+  List<Map> selectAllPosts(RowBounds rowBounds);
+
+  List<Map> selectAllPosts(RowBounds rowBounds, Object param);
+
 }
